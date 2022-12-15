@@ -4,91 +4,81 @@ import threading
 FORMAT = 'utf-8'
 HEADER =1024
 PORT = 3001
-IP = "192.168.1.16"
+IP = '192.168.1.16'
 ADDR=(IP, PORT)
 
-online_peers = []
+online_users = []
 
-online_peers_status = False
-
-thread_lock = threading.Lock()
+lock = threading.Lock()
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
-def handle_connection(conn, addr):
-  thread_lock.acquire()
-  username = conn.recv(1024).decode(FORMAT)  
-  online_user = (username, conn, addr)
-  global online_peers
-  online_peers.append(online_user)
-  global online_peers_status
-  online_peers_status = True
-  thread_lock.release()
-
-def handle_cmd(conn, addr):
-  connected = True
-  while connected:
-    msg = conn.recv(1024).decode(FORMAT)
-    if (msg == "disconnect"):
-      thread_lock.acquire()
-      global online_peers
-      for peer in online_peers:
-        if addr in peer:
-          idx = online_peers.index(peer)
-          del online_peers[idx]
-      print(online_peers)
-      global online_peers_status
-      online_peers_status = True
-      conn.send("disconnected".encode(FORMAT))
-      conn.close()
-      connected = False
-      thread_lock.release()
-    else:
-      user = "NOT FOUND!"
-      for peer in online_peers:
-        if msg in peer:
-          user = str(peer[2]).encode(FORMAT)
-          conn.send(user)
-      if (user == "NOT FOUND!"):
-        conn.send(user.encode(FORMAT))
-
-
-def handle_peer(conn, addr):
-  connection_thread = threading.Thread(target=handle_connection, args=(conn, addr))
-  connection_thread.start()
-  connection_thread.join()
-  cmd_thread = threading.Thread(target=handle_cmd, args=(conn, addr))
-  cmd_thread.start()
-  cmd_thread.join()
-  print(f"{addr} disconnected.")
-
 
 def broadcast():
-  while True:
-    global online_peers_status
-    if (online_peers_status):
-      online_peers_names = []
-      thread_lock.acquire()
-      for peer in online_peers:
-        online_peers_names.append(peer[0])
-      print(f"ACTIVE: {online_peers_names}")
-      for peer in online_peers:
-        peer[1].send(str(online_peers_names).encode(FORMAT))
-      online_peers_status = False
-      thread_lock.release()
+  try:
+    global online_users
+    online_client_names = []
+    for user in online_users:
+      online_client_names.append(user[0])
+    print(f'ACTIVE: {online_client_names}')
+    for client in online_users:
+      client[1].send(str(online_client_names).encode(FORMAT))
+  except:
+    print('[ERR] Error in broadcast()...')
+
+def handle_client(conn, addr):
+  try: 
+    connected = True
+    
+    while connected:
+      global online_users
+      msg = conn.recv(1024).decode(FORMAT)
+      
+      if (str(msg).startswith('@')):
+        lock.acquire()
+        username = msg.split('@')[1]
+        online_user = (username, conn, addr)
+        online_users.append(online_user)
+        lock.release()
+        conn.send('Welcome to P2P chat!'.encode(FORMAT))
+        broadcast()
+      elif (str(msg).startswith('$')):
+        found = 'NOT FOUND!'
+        find = msg.split('$')[1]
+        for user in online_users:
+          if find in user:
+            found = str(user[2]).encode(FORMAT)
+            conn.send(found)
+        if (found == 'NOT FOUND!'):
+          conn.send(found.encode(FORMAT))
+      elif (str(msg) == 'disconnect'):
+        lock.acquire()
+        for user in online_users:
+          if addr in user:
+            idx = online_users.index(user)
+            print(f'{user[0]} disconnected.')
+            del online_users[idx]
+        lock.release()
+        conn.send('disconnected'.encode(FORMAT))
+        conn.close()
+        broadcast()
+      else:
+        conn.send('Cmd error...'.encode(FORMAT))
+  except:
+    print('[ERR] Error in handle_client()...')
+
 
 def start(): 
   try:
     server.listen()
-    print(f"[LISTENING] Server is listening on {IP}")
-    broadcast_thread = threading.Thread(target=broadcast,args=())
-    broadcast_thread.start()
+    print(f'[LISTENING] Server is listening on {IP}')
     while True:
       conn, addr = server.accept()
-      peer_thread = threading.Thread(target=handle_peer, args=(conn, addr))
-      peer_thread.start()
+      client_thread = threading.Thread(target=handle_client, args=(conn, addr))
+      client_thread.start()
   except:
-    return 0;
+    print('[ERR] Error in start()...')
+    return 0
 
 start()

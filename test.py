@@ -46,9 +46,9 @@
 # f2()
 # print(_x)
 
-ls = [(1,'a'), (2,'b'), (3,'c')]
-ls1 = [(1,'a'), (2,'b'),(3,'c')]
-print(ls == ls1)
+# ls = [(1,'a'), (2,'b'), (3,'c')]
+# ls1 = [(1,'a'), (2,'b'),(3,'c')]
+# print(ls == ls1)
 
 # for item in ls:
 #   if 'b' in item:
@@ -57,3 +57,11 @@ print(ls == ls1)
 #     break
   
 # print(ls)
+
+msg = "('192.168.1.16', 37458)"
+
+def regex_addr(msg):
+  regex = msg[2:len(msg)-1].split("', ")
+  return (regex[0], 12345)
+
+print(regex_addr(msg))

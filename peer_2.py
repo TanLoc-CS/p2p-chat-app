@@ -1,6 +1,6 @@
 import socket
 import threading
-import random
+import time
 
 HEADER_LENGTH = 1024
 FORMAT = 'utf-8'
@@ -11,7 +11,7 @@ ADDR = (IP, PORT)
 
 # PEER_IP = socket.gethostbyname(socket.gethostname())
 PEER_IP = '192.168.1.16'
-PEER_PORT = random.randint(10000, 65535)
+PEER_PORT = 54321
 PEER_ADDR = (PEER_IP, PEER_PORT)
 
 server_connected = False

@@ -3,7 +3,7 @@ import threading
 
 FORMAT = 'utf-8'
 HEADER =1024
-PORT = 3001
+PORT = 3002
 IP = '192.168.1.16'
 ADDR=(IP, PORT)
 
@@ -41,7 +41,6 @@ def handle_client(conn, addr):
         online_user = (username, conn, addr)
         online_users.append(online_user)
         lock.release()
-        conn.send('Welcome to P2P chat!'.encode(FORMAT))
         broadcast()
       elif (str(msg).startswith('$')):
         found = 'NOT FOUND!'

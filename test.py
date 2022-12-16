@@ -62,6 +62,15 @@ msg = "('192.168.1.16', 37458)"
 
 def regex_addr(msg):
   regex = msg[2:len(msg)-1].split("', ")
-  return (regex[0], 12345)
+  return (regex[0], int(regex[1]))
 
 print(regex_addr(msg))
+# msg = '@talu'
+# msg = '@' + str((msg.split('@')[1], '192.168.1.16', 12345))
+# print(msg)
+
+# msg = "@('talu', '192.168.1.16', 12345)"
+
+# peer = msg[3:len(msg)-1].split("', ")
+
+# print((peer[0], peer[1][1:len(peer[1])-1], int(peer[2])))

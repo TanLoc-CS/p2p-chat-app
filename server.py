@@ -14,6 +14,10 @@ lock = threading.Lock()
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
+def regex_addr(msg):
+  regex = msg[2:len(msg)-1].split("', ")
+  return (regex[0], 12345)
+
 
 def broadcast():
   try:
@@ -37,8 +41,8 @@ def handle_client(conn, addr):
       
       if (str(msg).startswith('@')):
         lock.acquire()
-        username = msg.split('@')[1]
-        online_user = (username, conn, addr)
+        peer = msg[3:len(msg)-1].split("', ")
+        online_user = (peer[0], conn, peer[1][1:len(peer[1])], int(peer[2]))
         online_users.append(online_user)
         lock.release()
         broadcast()
@@ -47,7 +51,8 @@ def handle_client(conn, addr):
         find = msg.split('$')[1]
         for user in online_users:
           if find in user:
-            found = str(user[2]).encode(FORMAT)
+            print((user[2], user[3]))
+            found = str((user[2], user[3])).encode(FORMAT)
             conn.send(found)
         if (found == 'NOT FOUND!'):
           conn.send(found.encode(FORMAT))

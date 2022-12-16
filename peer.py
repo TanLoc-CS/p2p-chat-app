@@ -11,12 +11,12 @@ ADDR = (IP, PORT)
 
 # PEER_IP = socket.gethostbyname(socket.gethostname())
 PEER_IP = '192.168.1.16'
-PEER_PORT = random.randint(10000, 65535)
+PEER_PORT = random.randint(10000, 65000)
 PEER_ADDR = (PEER_IP, PEER_PORT)
 
 server_connected = False
 peer_connected = False
-connecting_peer_addr = ''
+connecting_peer = ''
 
 lock = threading.Lock()
 
@@ -25,10 +25,13 @@ def request_server(client):
   try:
     while server_connected:
       if not peer_connected:
+        global username
         msg = input()
+        if (msg.startswith('@')):
+          msg = '@' + str((msg.split('@')[1], PEER_IP, PEER_PORT))
         client.send(msg.encode(FORMAT))
   except:
-    print('[ERR] Error in request_server()...')
+    return 1
 
 
 def handle_response(client):
@@ -40,9 +43,9 @@ def handle_response(client):
         print(msg + '\n\nPress Enter to exit...')
         server_connected = False
       elif(str(msg).startswith('(')):
-        global connecting_peer_addr
-        connecting_peer_addr = msg
-        print(f'[CONNECTING PEER] peer: {connecting_peer_addr}')
+        global connecting_peer
+        connecting_peer = msg
+        print(f'[CONNECTING PEER] peer: {connecting_peer}')
         global peer_connected
         peer_connected = True
         print('Press Enter to start chat...')
@@ -51,7 +54,7 @@ def handle_response(client):
       else:
           print(f'[ACTIVE PEERS]{msg}')
   except:
-    print('[ERR] Error in handle_response()...')
+    return 1
 
 
 def connect_server():
@@ -65,38 +68,23 @@ def connect_server():
     request_server_thread.start()
     handle_response_thread.start()
   except:
-    print('[ERR] Error in connect_server()...')
+    return 1
 ###############################################
 
 ### Connect to peer server ###
-def regex_addr(msg):
-  regex = msg[2:len(msg)-1].split("', ")
-  return (regex[0], 12345)
-
-
-# def send_msg(client):
-#   try:
-#     connected = True
-#     while connected:
-#       msg = input('You: ')
-#       encoded_msg = msg.encode(FORMAT)
-#       msg_length = str(len(encoded_msg)).encode(FORMAT)
-#       msg_length += b' ' * (HEADER_LENGTH - len(msg_length))
-#       client.send(msg_length)
-#       client.send(encoded_msg)
-#   except:
-#     print('[ERR] Error in send_msg()...')
-
+def regex_addr(s):
+  regex = s[2:len(s)-1].split("', ")
+  return (regex[0], int(regex[1]))
 
 def connect_peer():
   try:
     global peer_connected
     while server_connected:
       if peer_connected:
-        global connecting_peer_addr
-        peer_addr = regex_addr(connecting_peer_addr)
-        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        global connecting_peer
+        peer_addr = regex_addr(connecting_peer)
         print(peer_addr)
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect(peer_addr)
         connected = True
         while connected:
@@ -109,7 +97,7 @@ def connect_peer():
           if (msg == 'exit'):
             peer_connected = False
   except:
-    print('[ERR] Error in connect_peer()...')
+    return 1
 ###############################################
 
 ### Create peer server ###
@@ -129,7 +117,7 @@ def handle_peer(conn, addr):
         else:
           print(f'{addr}: {msg}')
   except:
-    print('[ERR] Error in handle_peer()...')
+    return 1
 
 
 def start_peer_server():
@@ -140,12 +128,10 @@ def start_peer_server():
     print(f'[LISTENING] PEER is listening on {peer_server.getsockname()}')
     while True:
       conn, addr = peer_server.accept()
-      if addr:
-        print(f'in p_s {addr}')
       peer_thread = threading.Thread(target=handle_peer, args=(conn, addr))
       peer_thread.start()
   except:
-    print('[ERR] Error in start_peer_server()...')
+    return 1
 ###############################################
 
 def start():
@@ -157,6 +143,6 @@ def start():
     start_peer_server_thread.start()
     connect_peer_thread.start()
   except:
-    print('[ERR] Error in start()...')
+    return 1
     
 start()

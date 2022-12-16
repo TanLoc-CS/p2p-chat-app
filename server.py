@@ -4,7 +4,8 @@ import threading
 FORMAT = 'utf-8'
 HEADER =1024
 PORT = 3002
-IP = '192.168.1.16'
+# IP = '192.168.1.16'
+IP = socket.gethostbyname(socket.gethostname())
 ADDR=(IP, PORT)
 
 online_users = []

@@ -58,13 +58,13 @@
   
 # print(ls)
 
-msg = "('192.168.1.16', 37458)"
+# msg = "('192.168.1.16', 37458)"
 
-def regex_addr(msg):
-  regex = msg[2:len(msg)-1].split("', ")
-  return (regex[0], int(regex[1]))
+# def regex_addr(msg):
+#   regex = msg[2:len(msg)-1].split("', ")
+#   return (regex[0], int(regex[1]))
 
-print(regex_addr(msg))
+# print(regex_addr(msg))
 # msg = '@talu'
 # msg = '@' + str((msg.split('@')[1], '192.168.1.16', 12345))
 # print(msg)
@@ -74,3 +74,5 @@ print(regex_addr(msg))
 # peer = msg[3:len(msg)-1].split("', ")
 
 # print((peer[0], peer[1][1:len(peer[1])-1], int(peer[2])))
+
+print('[GUIDELINE]\nStep 1: Enter your username and let it starts with "@" (e.g. @abc, @xyz,...)\nStep 2: Enter user you want to chat to and let it starts with "$" (e.g. $abc, $xyz,...)\nStep 3: To exit a chat conversation type cmd "exit"\nStep 4: To disconnect with the server type cmd "disconnect"\n')

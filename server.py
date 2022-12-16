@@ -29,7 +29,7 @@ def broadcast():
     for client in online_users:
       client[1].send(str(online_client_names).encode(FORMAT))
   except:
-    print('[ERR] Error in broadcast()...')
+    return 1
 
 def handle_client(conn, addr):
   try: 
@@ -59,7 +59,7 @@ def handle_client(conn, addr):
       elif (str(msg) == 'disconnect'):
         lock.acquire()
         for user in online_users:
-          if addr in user:
+          if addr[0] in user:
             idx = online_users.index(user)
             print(f'{user[0]} disconnected.')
             del online_users[idx]
@@ -70,7 +70,7 @@ def handle_client(conn, addr):
       else:
         conn.send('Cmd error...'.encode(FORMAT))
   except:
-    print('[ERR] Error in handle_client()...')
+    return 1
 
 
 def start(): 
@@ -82,7 +82,6 @@ def start():
       client_thread = threading.Thread(target=handle_client, args=(conn, addr))
       client_thread.start()
   except:
-    print('[ERR] Error in start()...')
-    return 0
+    return 1
 
 start()

@@ -1,6 +1,7 @@
 import socket
 import threading
 import random
+import time
 
 HEADER_LENGTH = 1024
 FORMAT = 'utf-8'
@@ -83,7 +84,6 @@ def connect_peer():
       if peer_connected:
         global connecting_peer
         peer_addr = regex_addr(connecting_peer)
-        print(peer_addr)
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect(peer_addr)
         connected = True
@@ -102,8 +102,7 @@ def connect_peer():
 
 ### Create peer server ###
 def handle_peer(conn, addr):
-  try:
-    print(addr)
+  # try:
     connected = True
     while connected:
       msg_length = conn.recv(HEADER_LENGTH).decode(FORMAT)
@@ -111,13 +110,13 @@ def handle_peer(conn, addr):
         msg_length = int(msg_length)
         msg = conn.recv(msg_length).decode(FORMAT)
         if msg == 'exit':
-          print(f'{addr}: {msg}')
+          print(f'{addr} {msg}')
           conn.close()
           break
         else:
           print(f'{addr}: {msg}')
-  except:
-    return 1
+  # except:
+  #   return 1
 
 
 def start_peer_server():
@@ -136,6 +135,8 @@ def start_peer_server():
 
 def start():
   try:
+    print('[GUIDELINE]\nStep 1: Enter your username and let it starts with "@" (e.g. @abc, @xyz,...)\nStep 2: Enter user you want to chat to and let it starts with "$" (e.g. $abc, $xyz,...)\nStep 3: To exit a chat conversation type cmd "exit"\nStep 4: To disconnect with the server type cmd "disconnect"\n')
+    time.sleep(1)
     connect_server_thread = threading.Thread(target=connect_server, args=())
     start_peer_server_thread = threading.Thread(target=start_peer_server, args=())
     connect_peer_thread = threading.Thread(target=connect_peer, args=())

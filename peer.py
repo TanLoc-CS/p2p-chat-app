@@ -6,12 +6,13 @@ import time
 HEADER_LENGTH = 1024
 FORMAT = 'utf-8'
 
-IP = '192.168.1.16'
+IP = socket.gethostbyname(socket.gethostname())
+# IP = '192.168.1.16'
 PORT = 3002
 ADDR = (IP, PORT)
 
-# PEER_IP = socket.gethostbyname(socket.gethostname())
-PEER_IP = '192.168.1.16'
+PEER_IP = socket.gethostbyname(socket.gethostname())
+# PEER_IP = '192.168.1.16'
 PEER_PORT = random.randint(10000, 65000)
 PEER_ADDR = (PEER_IP, PEER_PORT)
 
